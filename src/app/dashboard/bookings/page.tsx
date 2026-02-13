@@ -65,7 +65,12 @@ export default function PartnerBookingsPage() {
     const handleStatusChange = async (bookingId: string, newStatus: BookingStatus) => {
         setUpdatingStatus(bookingId);
         try {
-            await bookingService.updateBookingStatus(bookingId, newStatus);
+            // Add a minimum delay to show loading state (especially for "accepting")
+            const [result] = await Promise.all([
+                bookingService.updateBookingStatus(bookingId, newStatus),
+                new Promise(resolve => setTimeout(resolve, 1000)) // 1 second minimum delay
+            ]);
+
             toast.success(
                 "Status Updated",
                 `Booking status updated to ${newStatus.replace('_', ' ')}`
@@ -206,7 +211,7 @@ export default function PartnerBookingsPage() {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <span className="text-sm text-slate-600">{booking.customerId.slice(-8)}</span>
+                                                    <span className="text-sm font-semibold text-slate-900">{booking.customerName}</span>
                                                 </TableCell>
                                                 <TableCell className="font-black text-slate-900">₹{booking.servicePrice}</TableCell>
                                                 <TableCell>

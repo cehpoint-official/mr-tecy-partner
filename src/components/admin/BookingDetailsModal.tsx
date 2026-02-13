@@ -33,7 +33,18 @@ const formatTime = (timestamp: Timestamp) => {
 const formatAddress = (location: any) => {
     if (!location) return "N/A";
     if (typeof location === 'string') return location;
-    return `${location.street || ''}, ${location.city || ''} ${location.zipCode || ''}`;
+
+    // Format with coordinates and city/area
+    const city = location.city || location.street || '';
+    const coords = location.geoPoint ?
+        `${location.geoPoint.latitude.toFixed(4)}, ${location.geoPoint.longitude.toFixed(4)}` : '';
+
+    if (coords && city) {
+        return `${coords} - ${city}`;
+    }
+
+    // Fallback to original format
+    return `${location.street || ''}, ${location.city || ''} ${location.zipCode || ''}`.trim();
 };
 
 export function BookingDetailsModal({
@@ -119,8 +130,8 @@ export function BookingDetailsModal({
                         <Card>
                             <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-sm text-slate-500 mb-1">Customer ID</p>
-                                    <p className="font-mono text-sm bg-slate-100 p-1 rounded inline-block">{booking.customerId}</p>
+                                    <p className="text-sm text-slate-500 mb-1">Customer Name</p>
+                                    <p className="font-semibold text-base text-slate-900">{booking.customerName}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-slate-500 mb-1">Location</p>

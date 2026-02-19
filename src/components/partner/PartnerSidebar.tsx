@@ -8,14 +8,14 @@ import {
     Star,
     LogOut,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Logo } from "@/components/Logo";
-import { useAuth } from "@/context/AuthContext";
 
 interface PartnerSidebarProps {
     className?: string;
@@ -27,12 +27,12 @@ export function PartnerSidebar({ className, isOpen, onClose }: PartnerSidebarPro
     const pathname = usePathname();
     const isDesktop = useMediaQuery("(min-width: 1024px)");
     const [collapsed, setCollapsed] = useState(false);
-    const { logout } = useAuth();
 
-    const menuItems = [
+    const links = [
         { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
         { href: "/dashboard/bookings", label: "My Bookings", icon: Calendar },
         { href: "/dashboard/reviews", label: "Reviews", icon: Star },
+        { href: "/dashboard/location", label: "Service Location", icon: MapPin },
     ];
 
     // Mobile Sidebar
@@ -78,7 +78,7 @@ export function PartnerSidebar({ className, isOpen, onClose }: PartnerSidebarPro
 
                         {/* Navigation */}
                         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-                            {menuItems.map((link) => {
+                            {links.map((link) => {
                                 const isActive = pathname === link.href;
                                 return (
                                     <Link
@@ -88,29 +88,33 @@ export function PartnerSidebar({ className, isOpen, onClose }: PartnerSidebarPro
                                         className={cn(
                                             "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                                             isActive
-                                                ? "bg-slate-100 text-slate-900 font-bold"
+                                                ? "bg-green-50 text-green-700 shadow-sm"
                                                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                                         )}
                                     >
                                         <link.icon className="h-5 w-5 flex-shrink-0" />
                                         <span>{link.label}</span>
+                                        {isActive && (
+                                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-green-600" />
+                                        )}
                                     </Link>
                                 );
                             })}
                         </nav>
 
-                        {/* Logout Button */}
-                        <div className="p-3 border-t">
-                            <Button
-                                onClick={logout}
-                                variant="ghost"
-                                className="w-full flex items-center justify-start gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200"
+                        {/* Footer */}
+                        <div className="p-3 border-t space-y-1">
+                            <Link
+                                href="/"
+                                className={cn(
+                                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                                    "text-red-600 hover:bg-red-50"
+                                )}
                             >
                                 <LogOut className="h-5 w-5 flex-shrink-0" />
-                                <span>Logout</span>
-                            </Button>
+                                <span>Back to App</span>
+                            </Link>
                         </div>
-
                     </div>
                 </aside>
             </>
@@ -155,7 +159,7 @@ export function PartnerSidebar({ className, isOpen, onClose }: PartnerSidebarPro
 
             {/* Navigation */}
             <nav className="flex-1 p-3 space-y-1">
-                {menuItems.map((link) => {
+                {links.map((link) => {
                     const isActive = pathname === link.href;
                     return (
                         <Link
@@ -164,34 +168,35 @@ export function PartnerSidebar({ className, isOpen, onClose }: PartnerSidebarPro
                             className={cn(
                                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                                 isActive
-                                    ? "bg-slate-100 text-slate-900 font-bold"
+                                    ? "bg-green-50 text-green-700 shadow-sm"
                                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                             )}
                             title={collapsed ? link.label : undefined}
                         >
                             <link.icon className="h-5 w-5 flex-shrink-0" />
                             {!collapsed && <span>{link.label}</span>}
+                            {isActive && !collapsed && (
+                                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-green-600" />
+                            )}
                         </Link>
                     );
                 })}
             </nav>
 
-            {/* Logout Button */}
-            <div className="p-3 border-t">
-                <Button
-                    onClick={logout}
-                    variant="ghost"
+            {/* Footer */}
+            <div className="p-3 border-t space-y-1">
+                <Link
+                    href="/"
                     className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200",
-                        collapsed ? "justify-center" : "justify-start"
+                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                        "text-red-600 hover:bg-red-50"
                     )}
-                    title={collapsed ? "Logout" : undefined}
+                    title={collapsed ? "Back to App" : undefined}
                 >
                     <LogOut className="h-5 w-5 flex-shrink-0" />
-                    {!collapsed && <span>Logout</span>}
-                </Button>
+                    {!collapsed && <span>Back to App</span>}
+                </Link>
             </div>
-
         </aside>
     );
 }

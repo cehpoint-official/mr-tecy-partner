@@ -65,12 +65,7 @@ export default function PartnerBookingsPage() {
     const handleStatusChange = async (bookingId: string, newStatus: BookingStatus) => {
         setUpdatingStatus(bookingId);
         try {
-            // Add a minimum delay to show loading state (especially for "accepting")
-            const [result] = await Promise.all([
-                bookingService.updateBookingStatus(bookingId, newStatus),
-                new Promise(resolve => setTimeout(resolve, 1000)) // 1 second minimum delay
-            ]);
-
+            await bookingService.updateBookingStatus(bookingId, newStatus);
             toast.success(
                 "Status Updated",
                 `Booking status updated to ${newStatus.replace('_', ' ')}`
@@ -211,9 +206,9 @@ export default function PartnerBookingsPage() {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <span className="text-sm font-semibold text-slate-900">{booking.customerName}</span>
+                                                    <span className="text-sm text-slate-600">{booking.customerId.slice(-8)}</span>
                                                 </TableCell>
-                                                <TableCell className="font-black text-slate-900">₹{booking.servicePrice}</TableCell>
+                                                <TableCell className="font-black text-slate-900">₹{booking.totalAmount || booking.servicePrice}</TableCell>
                                                 <TableCell>
                                                     <div className="flex flex-col gap-1">
                                                         <span className="text-xs text-slate-600">{booking.paymentMethod}</span>
@@ -288,6 +283,7 @@ export default function PartnerBookingsPage() {
                     booking={selectedBooking}
                     open={modalOpen}
                     onOpenChange={setModalOpen}
+                    partnerLocation={profile?.location}
                 />
             </div>
         </div>

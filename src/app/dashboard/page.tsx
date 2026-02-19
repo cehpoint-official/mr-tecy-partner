@@ -5,13 +5,14 @@ import { bookingService } from "@/services/booking.service";
 import { reviewService } from "@/services/review.service";
 import { Booking, Review } from "@/types";
 import { useState, useEffect } from "react";
-import { Loader2, Calendar, Star, CheckCircle2, DollarSign, Clock, ChevronRight } from "lucide-react";
+import { Loader2, Calendar, Star, CheckCircle2, DollarSign, Clock, ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { StatCard } from "@/components/admin/StatCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RealtimeIndicator } from "@/components/admin/RealtimeIndicator";
+
 
 export default function PartnerDashboard() {
     const { profile } = useAuth();
@@ -62,7 +63,7 @@ export default function PartnerDashboard() {
         pending: bookings.filter(b => b.status === 'pending').length,
         inProgress: bookings.filter(b => b.status === 'in_progress').length,
         completed: bookings.filter(b => b.status === 'completed').length,
-        totalRevenue: bookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + b.servicePrice, 0),
+        totalRevenue: bookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + (b.totalAmount || b.servicePrice), 0),
         avgRating: profile?.rating || 0,
         totalReviews: reviews.length,
     };
@@ -74,7 +75,11 @@ export default function PartnerDashboard() {
     const recentBookings = bookings.slice(0, 5);
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-8">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/30 to-slate-50 pb-8">
+            {/* Premium Background Gradient */}
+            <div className="absolute top-0 left-0 right-0 h-[35vh] bg-gradient-to-b from-green-100/40 via-emerald-50/30 to-transparent pointer-events-none" />
+            <div className="absolute top-20 left-1/4 w-96 h-96 bg-green-200/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-40 right-1/4 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto space-y-6 sm:space-y-8 pt-4 sm:pt-6">
                 {/* Header - Mobile Optimized */}
@@ -90,7 +95,7 @@ export default function PartnerDashboard() {
 
                 {/* Stats Grid - Mobile: Single column, Tablet: 2 columns, Desktop: 4 columns */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Link href="/dashboard/bookings">
+                    <Link href="/partner/dashboard/bookings">
                         <StatCard
                             title="Total Bookings"
                             value={stats.total}
@@ -99,7 +104,7 @@ export default function PartnerDashboard() {
                             loading={loading}
                         />
                     </Link>
-                    <Link href="/dashboard/bookings?filter=completed">
+                    <Link href="/partner/dashboard/bookings?filter=completed">
                         <StatCard
                             title="Completed"
                             value={stats.completed}
@@ -108,7 +113,7 @@ export default function PartnerDashboard() {
                             loading={loading}
                         />
                     </Link>
-                    <Link href="/dashboard/reviews">
+                    <Link href="/partner/dashboard/reviews">
                         <StatCard
                             title="Average Rating"
                             value={stats.avgRating.toFixed(1)}
@@ -124,7 +129,35 @@ export default function PartnerDashboard() {
                         color="from-blue-500 to-blue-600"
                         loading={loading}
                     />
+                    <StatCard
+                        title="Total Revenue"
+                        value={`₹${stats.totalRevenue}`}
+                        icon={DollarSign}
+                        color="from-blue-500 to-blue-600"
+                        loading={loading}
+                    />
                 </div>
+
+                {/* Location Manager */}
+                {/* Location Status Card */}
+                <Card className="border-none shadow-md hover:shadow-xl bg-white/95 backdrop-blur-md transition-all duration-300">
+                    <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                        <div className="space-y-1">
+                            <CardTitle className="text-base font-black text-slate-900 flex items-center gap-2">
+                                <MapPin className="w-5 h-5 text-blue-600" />
+                                Service Location
+                            </CardTitle>
+                            <CardDescription className="text-xs text-slate-500 font-medium max-w-md">
+                                {profile?.location?.address || "Location not set. Set your location to get nearby bookings."}
+                            </CardDescription>
+                        </div>
+                        <Link href="/partner/dashboard/location">
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 font-bold">
+                                Manage Location
+                            </Button>
+                        </Link>
+                    </CardHeader>
+                </Card>
 
                 {/* Secondary Stats - Mobile Optimized */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -203,7 +236,7 @@ export default function PartnerDashboard() {
                                     <CardTitle className="text-base sm:text-lg font-black text-slate-900">Upcoming Bookings</CardTitle>
                                     <CardDescription className="text-[11px] text-slate-500 font-medium">Pending and accepted jobs</CardDescription>
                                 </div>
-                                <Link href="/dashboard/bookings">
+                                <Link href="/partner/dashboard/bookings">
                                     <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-700 hover:bg-green-50 font-bold text-xs h-9 px-3 rounded-lg">
                                         View All <ChevronRight className="w-3.5 h-3.5 ml-1" />
                                     </Button>
@@ -243,7 +276,7 @@ export default function PartnerDashboard() {
                                                 </p>
                                             </div>
                                             <div className="text-right ml-3 flex-shrink-0">
-                                                <p className="font-black text-slate-900 text-base sm:text-lg">₹{booking.servicePrice}</p>
+                                                <p className="font-black text-slate-900 text-base sm:text-lg">₹{booking.totalAmount || booking.servicePrice}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -260,7 +293,7 @@ export default function PartnerDashboard() {
                                     <CardTitle className="text-base sm:text-lg font-black text-slate-900">Recent Reviews</CardTitle>
                                     <CardDescription className="text-[11px] text-slate-500 font-medium">Latest customer feedback</CardDescription>
                                 </div>
-                                <Link href="/dashboard/reviews">
+                                <Link href="/partner/dashboard/reviews">
                                     <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-700 hover:bg-green-50 font-bold text-xs h-9 px-3 rounded-lg">
                                         View All <ChevronRight className="w-3.5 h-3.5 ml-1" />
                                     </Button>
